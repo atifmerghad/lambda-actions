@@ -6,7 +6,35 @@ on:
       - main
 env:
   APP_VERSION: '0.0.1'
-jobs: 
+jobs:
+  build-lambda-layer:
+    runs-on: ubuntu-latest
+    environment: 'dev'
+    steps: 
+      - uses: actions/checkout@v2
+      - uses: dorny/paths-filter@v2
+        id: changes
+        with:
+          base: main
+          token: ${{ github.token }}
+          filters: |
+            updateviewkpiquarterly: 
+              - './src/python/lambda-functions/update-view-kpi-quarterly/**'
+            
+      - uses: actions/setup-python@v2
+      - uses: aws-actions/setup-sam@v1
+      - uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - name: Build Lambda Layer
+        if: ${{ steps.changes.outputs.updateviewkpiquarterly == 'true' }}
+        run: sam build  updateviewkpiquarterly --use-container --template-file template.yaml
+      - name: Deploy Lambda Layer
+        if: ${{ steps.changes.outputs.updateviewkpiquarterly == 'true' }}
+        run: sam build  updateviewkpiquarterly --use-container --template-file template.yaml
+
   deploy-lambda:
     runs-on: ubuntu-latest
     environment: 'dev'
