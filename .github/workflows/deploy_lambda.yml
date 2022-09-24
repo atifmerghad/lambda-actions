@@ -1,0 +1,44 @@
+name: Lambda duild/deploy Pipeline
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+env:
+  APP_VERSION: '0.0.1'
+jobs: 
+  deploy-lambda:
+    runs-on: ubuntu-latest
+    environment: 'dev'
+    needs: build-lambda-layer
+    steps: 
+      - uses: actions/checkout@v2
+      - uses: dorny/paths-filter@v2
+        id: changes
+        with:
+          base: main
+          token: ${{ github.token }}
+          filters: |
+            updateviewkpiquarterly: 
+              - './src/python/lambda-functions/update-view-kpi-quarterly/**'
+            updateviewkpi: 
+              - './src/python/lambda-functions/update-view-kpi/**'
+      
+      - uses: actions/setup-python@v2
+      - uses: aws-actions/setup-sam@v1
+      - uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - name: build using SAM KPI VIEW quarterly
+        if: ${{ steps.changes.outputs.updateviewkpiquarterly == 'true' }}
+        run: sam build  updateviewkpiquarterly --use-container --template-file template.yaml
+      - name: build using SAM KPI VIEW
+        if: ${{ steps.changes.outputs.updateviewkpi == 'true' }}
+        run: sam build  updateviewkpi --use-container --template-file template.yaml
+
+      - name: deploy on AWS
+        if: ${{ (steps.changes.outputs.updateviewkpiquarterly == 'true') || (steps.changes.outputs.updateviewkpi == 'true') }}
+        run: sam deploy --config-file samconfig.toml --no-fail-on-empty-changeset --no-confirm-changeset
+
