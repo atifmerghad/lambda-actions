@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - $GITHUB_REF
+      - develop
 jobs:
   build-lambda-layer:
     runs-on: ubuntu-latest
@@ -16,7 +16,7 @@ jobs:
       - uses: dorny/paths-filter@v2
         id: changes
         with:
-          base: $GITHUB_REF
+          base: develop
           token: ${{ github.token }}
           filters: |
             layer: 
@@ -35,7 +35,7 @@ jobs:
       - uses: dorny/paths-filter@v2
         id: changes
         with:
-          base: main
+          base: develop
           token: ${{ github.token }}
           filters: |
             lambda1: 
