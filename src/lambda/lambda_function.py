@@ -1,7 +1,7 @@
 
 def lambda_handler(event, context):
    
-    version= '0.0.1'
+    version= '0.0.2'
 
     print("Hello world")
     return {
@@ -10,4 +10,4 @@ def lambda_handler(event, context):
         'headers': {
             "Content-Type": "application/json"
         }
-    }
+    }  
