@@ -9,5 +9,5 @@ def lambda_handler(event, context):
         'body': 'Lambda deployed using github actions',
         'headers': {
             "Content-Type": "application/json"
-        }
+        } 
     }  

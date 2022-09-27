@@ -22,9 +22,13 @@ jobs:
             layer: 
               - './src/layers/**'
       - uses: actions/setup-python@v2
+      - name: Set env.BRANCH
+        run: echo "BRANCH=$(echo $GITHUB_REF | cut -d'/' -f 3)" >> $GITHUB_ENV
       - name: Check changes on the layer
         if: ${{ steps.changes.outputs.layer == 'true' }}
-        run: echo "----> build layer " && echo "deploy layer to aws"
+        run: echo "github.head_ref ---> ${{ github.head_ref }}  "
+      - name: Output the branch name
+        run: echo $(echo $GITHUB_REF | cut -d'/' -f 3)
 
   deploy-lambda:
     runs-on: ubuntu-latest
