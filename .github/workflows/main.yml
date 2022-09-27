@@ -3,11 +3,7 @@ name: Lambda duild/deploy Pipeline
 env:
   APP_VERSION: '0.0.1'
   BRANCH: echo $(echo $GITHUB_REF | cut -d'/' -f 3)
-on:
-  workflow_dispatch:
-  push:
-    branches:
-      - $BRANCH
+on: [push, pull_request]
 jobs:
   build-lambda-layer:
     runs-on: ubuntu-latest
@@ -17,7 +13,6 @@ jobs:
       - uses: dorny/paths-filter@v2
         id: changes
         with:
-          base: $BRANCH
           token: ${{ github.token }}
           filters: |
             layer: 
@@ -27,7 +22,7 @@ jobs:
         run: echo "BRANCH=$(echo $GITHUB_REF | cut -d'/' -f 3)" >> $GITHUB_ENV
       - name: Check changes on the layer
         if: ${{ steps.changes.outputs.layer == 'true' }}
-        run: echo "BRANCH ---> $BRANCH "
+        run: echo "github.head_ref ---> ${{ github.head_ref }}  "
       - name: Output the branch name
         run: echo $(echo $GITHUB_REF | cut -d'/' -f 3)
 
@@ -40,7 +35,6 @@ jobs:
       - uses: dorny/paths-filter@v2
         id: changes
         with:
-          base: $BRANCH
           token: ${{ github.token }}
           filters: |
             lambda1: 
