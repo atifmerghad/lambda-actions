@@ -19,11 +19,14 @@ jobs:
               lambda1: 
                 - './src/lambda/**' 
         - uses: actions/setup-python@v2
-
-        - name: Unint Test
+        - name: Build and Unit testing
           if: ${{ steps.changes.outputs.lambda1 == 'true' }}
-          run: 'cd ./src/tests && python -m unittest'
-
+          run: |
+            'virtualenv env &&
+            source env/bin/activate &&
+            pip3 install -r ./src/python/requirements.txt &&
+            cd ./src/python/src &&
+            python -m unittest'
 
   build-lambda-layer:
     runs-on: ubuntu-latest
