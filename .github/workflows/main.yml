@@ -22,8 +22,9 @@ jobs:
 
         - name: Unint Test
           if: ${{ steps.changes.outputs.lambda1 == 'true' }}
-          run: python -m unittest
-          
+          run: 'cd ./src/tests && python -m unittest'
+
+
   build-lambda-layer:
     runs-on: ubuntu-latest
     needs:  unit-testing
