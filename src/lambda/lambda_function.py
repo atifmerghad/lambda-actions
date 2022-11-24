@@ -6,8 +6,8 @@ def lambda_handler(event, context):
     print("Hello world")
     return {  
         'statusCode': 200,
-        'body': 'Lambda deployed using github actions',
+        'body': 'Lambda deployed using github  actions',
         'headers': {
             "Content-Type": "application/json"
-        }  
-    }     
+        }    
+    }       
