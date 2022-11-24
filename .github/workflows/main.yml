@@ -9,10 +9,10 @@ on:
   push:
     branches:
       - develop
-      
-jobs:
+
+jobs: 
   unit-testing: # Build code and apply unit test
-      runs-on: ubuntu-latest
+      runs-on: ubuntu-latest 
       environment: 'dev'
       steps: 
         - uses: actions/checkout@v2
