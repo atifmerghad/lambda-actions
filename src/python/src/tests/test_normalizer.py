@@ -9,8 +9,6 @@ class MyTestCase(unittest.TestCase):
         # Check Kpi
         self.assertEqual("ABC", "CDF")
         
-    
-        
 
 if __name__ == '__main__':
     unittest.main()
