@@ -50,7 +50,7 @@ jobs:
   deploy-lambda:
     runs-on: ubuntu-latest
     environment: 'dev'
-    needs: unit-testing
+    needs: build-lambda-layer
     steps: 
       - uses: actions/checkout@v2
       - uses: dorny/paths-filter@v2
