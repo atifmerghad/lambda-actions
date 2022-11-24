@@ -3,7 +3,13 @@ name: Lambda duild/deploy Pipeline
 env:
   APP_VERSION: '0.0.1'
   BRANCH: echo $(echo $GITHUB_REF | cut -d'/' -f 3)
-on: [push, pull_request]
+  
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - develop
+      
 jobs:
   unit-testing: # Build code and apply unit test
       runs-on: ubuntu-latest
