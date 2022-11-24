@@ -5,10 +5,10 @@ env:
   BRANCH: echo $(echo $GITHUB_REF | cut -d'/' -f 3)
   
 on:
-  workflow_dispatch:
   push:
     branches:
-      - develop
+      - master
+  pull_request:
 
 jobs: 
   unit-testing: # Build code and apply unit test
@@ -19,6 +19,7 @@ jobs:
         - uses: dorny/paths-filter@v2
           id: changes
           with:
+            #base: develop
             ref: ${{ github.ref }}
             token: ${{ github.token }}
             filters: |
