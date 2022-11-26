@@ -10,8 +10,8 @@ on:
       - develop
   pull_request:
 
-jobs: 
-  unit-testing: # Build code and apply unit test
+jobs:
+  build-unit-testing: # Build code and apply unit test
       runs-on: ubuntu-latest 
       environment: 'dev'
       steps: 
@@ -38,10 +38,11 @@ jobs:
             source env/bin/activate
             pip3 install -r ./src/python/requirements.txt
             cd ./src/python/src/tests && python -m unittest
-
-  build-lambda-layer:
+  build-deploy-lambda-layer:
     runs-on: ubuntu-latest
-    needs:  unit-testing
+    env:
+      region: us-west-1
+    needs:  build-unit-testing
     environment: 'dev'
     steps: 
       - uses: actions/checkout@v2
@@ -58,13 +59,14 @@ jobs:
         run: echo "BRANCH=$(echo $GITHUB_REF | cut -d'/' -f 3)" >> $GITHUB_ENV
       - name: Check changes on the layer
         if: ${{ steps.changes.outputs.layer == 'true' }}
-        run: echo "github.head_ref ---> ${{ github.head_ref }}  "
-      - name: Output the branch name
-        run: echo $(echo $GITHUB_REF | cut -d'/' -f 3)
-  deploy-lambda:
+        run: echo "$region ---layer dev--> github.head_ref ---> ${{ github.head_ref }}  "
+
+  deploy-lambda-functions-dev:
     runs-on: ubuntu-latest
+    env:
+      region: us-west-1
     environment: 'dev'
-    needs: build-lambda-layer
+    needs: build-deploy-lambda-layer
     steps: 
       - uses: actions/checkout@v2
       - uses: dorny/paths-filter@v2
@@ -77,11 +79,58 @@ jobs:
               - './src/lambda/**' 
       - uses: actions/setup-python@v2
 
-      - name: build using SAM KPI VIEW quarterly
+      - name: DEV build using SAM KPI VIEW 
         if: ${{ steps.changes.outputs.lambda1 == 'true' }}
-        run: echo "+++++++> Build lambda "
+        run: echo "$region ----------> Build lambda in Dev Env"
+      - name: deploy on AWS Dev
+        if: ${{ steps.changes.outputs.lambda1 == 'true' }}
+        run: echo "$region ----------> Deploy lambda in Dev ENV"
+
+  build-deploy-lambda-layer-test:
+      runs-on: ubuntu-latest
+      env:
+        region: us-east-1
+      needs:  deploy-lambda-functions-dev
+      environment: 'dev'
+      steps: 
+        - uses: actions/checkout@v2
+        - uses: dorny/paths-filter@v2
+          id: changes
+          with:
+            ref: ${{ github.ref }}
+            token: ${{ github.token }}
+            filters: |
+              layer: 
+                - './src/layers/**'
+        - uses: actions/setup-python@v2
+        - name: Set env.BRANCH
+          run: echo "BRANCH=$(echo $GITHUB_REF | cut -d'/' -f 3)" >> $GITHUB_ENV
+        - name: Check changes on the layer
+          if: ${{ steps.changes.outputs.layer == 'true' }}
+          run: echo "$region --Layer test--------github.head_ref ---> ${{ github.head_ref }}  "
+
+  deploy-lambda-functions-test:
+    runs-on: ubuntu-latest
+    env:
+      region: us-east-1
+    environment: 'test'
+    needs: build-deploy-lambda-layer-test
+    steps: 
+      - uses: actions/checkout@v2
+      - uses: dorny/paths-filter@v2
+        id: changes
+        with:
+          ref: ${{ github.ref }}
+          token: ${{ github.token }}
+          filters: |
+            lambda1: 
+              - './src/lambda/**' 
+      - uses: actions/setup-python@v2
+
+      - name: Test - build using SAM KPI VIEW 
+        if: ${{ steps.changes.outputs.lambda1 == 'true' }}
+        run: echo "$region ----------> Build lambda in Test env"
       - name: deploy on AWS
         if: ${{ steps.changes.outputs.lambda1 == 'true' }}
-        run: echo "+++++++> Deploy lambda "
-
+        run: echo "$region ----------> Deploy lambda in Test env"
 
