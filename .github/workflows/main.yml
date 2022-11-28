@@ -8,8 +8,9 @@ on:
   push:
     branches:
       - develop
-      - staging
   pull_request:
+    branches:
+      - staging
 
 jobs:
   build-unit-testing: # Build code and apply unit test
