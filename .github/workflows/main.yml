@@ -66,13 +66,12 @@ jobs:
           sam build DataLayer --use-container --template-file sam/template_dev.yaml  --parameter-overrides  'ParameterKey=accesskey,ParameterValue=${{secrets.LAMBDA_ACCESS_KEY}} ParameterKey=secretkey,ParameterValue=${{secrets.LAMBDA_SECRET_KEY}} ParameterKey=regionkey,ParameterValue=${{region}}'
           sam deploy --config-file sam/samconfig_dev.toml --no-fail-on-empty-changeset --no-confirm-changeset --parameter-overrides  'ParameterKey=accesskey,ParameterValue=${{secrets.LAMBDA_ACCESS_KEY}} ParameterKey=secretkey,ParameterValue=${{secrets.LAMBDA_SECRET_KEY}} ParameterKey=regionkey,ParameterValue=${{region}}'
 
-
   deploy-lambda-functions-dev:
     runs-on: ubuntu-latest
     env:
       region: us-west-1
     environment: 'dev'
-    needs: build-deploy-lambda-layer
+    needs: build-deploy-lambda-layer-dev
     steps: 
       - uses: actions/checkout@v2
       - uses: dorny/paths-filter@v2
