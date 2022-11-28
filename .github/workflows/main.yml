@@ -8,6 +8,7 @@ on:
   push:
     branches:
       - develop
+      - staging
   pull_request:
 
 jobs:
@@ -41,7 +42,7 @@ jobs:
   build-deploy-lambda-layer-dev:
     runs-on: ubuntu-latest
     env:
-      region: ${{ github.ref == 'refs/heads/develop' && 'us-west-1' || 'us-east-1' }}
+      region: ${{ github.ref == 'refs/heads/staging' && 'us-east-1' || 'us-west-1' }}
     needs:  build-unit-testing
     environment: 'dev'
     steps: 
