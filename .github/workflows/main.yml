@@ -46,6 +46,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       region: ${{ github.ref == 'refs/heads/staging' && 'us-east-1' || 'us-west-1' }}
+      branch: ${{ github.ref == 'refs/heads/staging' && 'test' || 'dev' }}
     needs:  build-unit-testing
     environment: 'dev'
     steps: 
@@ -67,8 +68,8 @@ jobs:
       - uses: aws-actions/setup-sam@v1
       - name: Build and Deploy Lambda Layer
         run: |
-          sam build DataLayer --use-container --template-file sam/template_dev.yaml  --parameter-overrides  'ParameterKey=accesskey,ParameterValue=${{secrets.LAMBDA_ACCESS_KEY}} ParameterKey=secretkey,ParameterValue=${{secrets.LAMBDA_SECRET_KEY}} ParameterKey=regionkey,ParameterValue=${{env.region}}'
-          sam deploy --config-file sam/samconfig_dev.toml --no-fail-on-empty-changeset --no-confirm-changeset --parameter-overrides  'ParameterKey=accesskey,ParameterValue=${{secrets.LAMBDA_ACCESS_KEY}} ParameterKey=secretkey,ParameterValue=${{secrets.LAMBDA_SECRET_KEY}} ParameterKey=regionkey,ParameterValue=${{env.region}}'
+          sam build DataLayer --use-container --template-file sam/template_${{env.branch}}.yaml  --parameter-overrides  'ParameterKey=accesskey,ParameterValue=${{secrets.LAMBDA_ACCESS_KEY}} ParameterKey=secretkey,ParameterValue=${{secrets.LAMBDA_SECRET_KEY}} ParameterKey=regionkey,ParameterValue=${{env.region}}'
+          sam deploy --config-file sam/samconfig_${{env.branch}}..toml --no-fail-on-empty-changeset --no-confirm-changeset --parameter-overrides  'ParameterKey=accesskey,ParameterValue=${{secrets.LAMBDA_ACCESS_KEY}} ParameterKey=secretkey,ParameterValue=${{secrets.LAMBDA_SECRET_KEY}} ParameterKey=regionkey,ParameterValue=${{env.region}}'
 
   deploy-lambda-functions-dev:
     runs-on: ubuntu-latest
