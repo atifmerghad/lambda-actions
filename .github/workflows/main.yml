@@ -8,8 +8,10 @@ on:
   push:
     branches:
       - develop
+      - feat/check-pr-branch
   pull_request:
     branches:
+      - develop
       - staging
 
 jobs:
