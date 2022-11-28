@@ -38,7 +38,7 @@ jobs:
             source env/bin/activate
             pip3 install -r ./src/python/requirements.txt
             cd ./src/python/src/tests && python -m unittest
-  build-deploy-lambda-layer:
+  build-deploy-lambda-layer-dev:
     runs-on: ubuntu-latest
     env:
       region: us-west-1
@@ -60,6 +60,12 @@ jobs:
       - name: Check changes on the layer
         if: ${{ steps.changes.outputs.layer == 'true' }}
         run: echo "$region ---layer dev--> github.head_ref ---> ${{ github.head_ref }}  "
+      - uses: aws-actions/setup-sam@v1
+      - name: Build and Deploy Lambda Layer
+        run: |
+          sam build DataLayer --use-container --template-file sam/template_dev.yaml  --parameter-overrides  'ParameterKey=accesskey,ParameterValue=${{secrets.LAMBDA_ACCESS_KEY}} ParameterKey=secretkey,ParameterValue=${{secrets.LAMBDA_SECRET_KEY}} ParameterKey=regionkey,ParameterValue=${{region}}'
+          sam deploy --config-file sam/samconfig_dev.toml --no-fail-on-empty-changeset --no-confirm-changeset --parameter-overrides  'ParameterKey=accesskey,ParameterValue=${{secrets.LAMBDA_ACCESS_KEY}} ParameterKey=secretkey,ParameterValue=${{secrets.LAMBDA_SECRET_KEY}} ParameterKey=regionkey,ParameterValue=${{region}}'
+
 
   deploy-lambda-functions-dev:
     runs-on: ubuntu-latest

@@ -1,0 +1,52 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Description: Recreate lambdas 
+Resources:
+
+  UpdateViewKpiQuarterly:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: lambda_function.lambda_handler
+      Runtime: python3.7
+      FunctionName: update-view-kpi-quarterly-v003
+      CodeUri: ./src/python/lambda-functions/update-view-kpi-quarterly/
+      Description: Update View KPI Quarterly table
+      MemorySize: 177
+      Timeout: 300
+      Role: 'arn:aws:iam::817168858692:role/service-role/lambdafunction'
+      Environment:
+        Variables:
+          access_key: !Ref accesskey
+          secret_key: !Ref secretkey
+          region_key: !Ref regionkey
+      Tags:
+        'user:Application': DataLayer
+        'user:Owner': IDL
+        'user:Stack': PoC
+        'user:CostCenter': IDL-1
+      Layers:
+        - 'arn:aws:lambda:us-west-1:817168858692:layer:python-layer:1'
+
+
+  DataLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: data_extractor
+      Description: data  code to share with the other lambda functions
+      ContentUri: ./src/python/src
+      CompatibleRuntimes:
+        - python3.7
+    Metadata:
+      BuildMethod: python3.7        
+
+Outputs:
+  LayerArn:
+    Value: !Ref DataLayer
+
+Parameters:
+  accesskey:
+    Type: String
+  secretkey:
+    Type: String
+  regionkey:
+    Type: String
